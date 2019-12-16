@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<h1>특정 고객 거래내역 조회 서비스 개발</h1>
+<h3>1. <input type=button value='실행' OnClick="location.href='/selectTopAccInfByYear';"> 2018년, 2019년 각 연도별 합계 금액이 가장 많은 고객을 추출하는 API</h3>
+<h3>2. <input type=button value='실행' OnClick="location.href='/selectNoTrdAccInfByYearList';"> 2018년 또는 2019년에 거래가 없는 고객을 추출하는 API</h3>
+<h3>3. <input type=button value='실행' OnClick="location.href='/selectBrTrdSumAmtByYearNBrList';"> 연도별 관리점별 거래금액 합계를 구하고 합계금액이 큰 순서로 출력하는 API</h3>
+<h3>4-1. <input type=button value='실행' OnClick="location.href='/intgBrInf';"> 분당점과 판교점을 통폐합하여 판교점으로 관리점 이관 처리</h3>
+<h3>4-2. 지점명을 입력하면 해당지점의 거래금액 합계를 출력하는 API
+    <form action='/selectBrTrdSumAmt' method='GET'>
+    &nbsp; &nbsp; &nbsp; - 지점명 입력 <input type=text name=brName size=5> <input type=submit value='조회'>
+    </form>
+</h3>
+</body>
+</html>

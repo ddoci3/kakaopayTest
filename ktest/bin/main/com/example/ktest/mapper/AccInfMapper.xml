@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.example.ktest.mapper.AccInfMapper">
+
+<!-- ==================================================================================================== -->
+<!-- SELECT                                                                                               -->
+<!-- ==================================================================================================== -->
+
+<!-- 
+조회::기본::단건::계좌정보 
+입력::계좌번호
+출력::계좌정보 
+-->
+<select id="selectAccInf" parameterType="AccInfVO" resultType="AccInfVO">
+SELECT  A.ACC_NO
+      , A.ACC_NM
+      , A.MGMT_BR_COD
+  FROM  ACC_INF A
+ WHERE  A.ACC_NO = #{acc_no}
+</select>
+    
+<!-- 조회::확장::단건::연도별 합계금액이 가장 많은 계좌 정보 조회 
+입력::연도
+출력::연도, 계좌명, 계좌번호, 거래합계금액 
+-->
+<select id="selectTopAccInfByYear" parameterType="int" resultType="TopAccInfVO">
+SELECT  B.YEAR
+      , A.ACC_NM
+      , A.ACC_NO
+      , B.SUM_AMT
+  FROM  ACC_INF A
+      ,(
+		SELECT  X.ACC_NO
+              , #{year} AS YEAR
+			  , SUM(X.TRD_AMT - X.FEE) AS SUM_AMT
+		  FROM  TRD_BDWN X
+		 WHERE  X.TRD_DT LIKE CONCAT(#{year}, '%')
+           AND  X.CNCL_YN = 'N'
+		 GROUP  BY  X.ACC_NO
+		 ORDER  BY  SUM_AMT DESC
+         LIMIT  1
+		) B
+ WHERE  A.ACC_NO = B.ACC_NO
+</select>
+
+<!-- 
+조회::확장::단건::연도별 거래가 없는 계좌 정보 조회 
+입력::연도
+출력::연도, 계좌명, 계좌번호 
+-->
+<select id="selectNoTrdAccInfByYearList" parameterType="int" resultType="NoTrdAccInfVO">
+SELECT  #{year} AS YEAR
+      , A.ACC_NM
+      , A.ACC_NO
+  FROM  ACC_INF A
+ WHERE  ACC_NO NOT IN (
+                       SELECT  DISTINCT
+                               X.ACC_NO
+						 FROM  TRD_BDWN X
+						WHERE  X.TRD_DT LIKE CONCAT(#{year}, '%')
+                          AND  X.CNCL_YN = 'N'
+					   )
+</select>
+
+<!-- ==================================================================================================== -->
+<!-- UPDATE                                                                                               -->
+<!-- ==================================================================================================== -->
+
+<!-- 
+갱신::확장::다건::관리점변경에 따른 관리지점코드 갱신 
+입력::이전지점코드, 이후지점코드
+-->
+<update id="updateAccInfByMgmtBrCod" parameterType="BrCodChngVO">
+UPDATE  ACC_INF A
+   SET  A.MGMT_BR_COD = #{af_br_cod}
+ WHERE  A.MGMT_BR_COD = #{bf_br_cod}
+</update>
+
+</mapper>

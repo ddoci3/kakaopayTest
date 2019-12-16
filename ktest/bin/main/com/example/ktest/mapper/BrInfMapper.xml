@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.example.ktest.mapper.BrInfMapper">
+
+<!-- ==================================================================================================== -->
+<!-- SELECT                                                                                               -->
+<!-- ==================================================================================================== -->
+
+<!-- 
+조회::기본::단건::지점정보 조회
+입력::지점코드
+출력::지점정보
+-->
+<select id="selectBrInf" parameterType="BrInfVO" resultType="BrInfVO">
+SELECT  A.BR_COD
+      , A.BR_NM
+      , A.BR_STS_COD
+  FROM  BR_INF A
+ WHERE  A.BR_COD = #{br_cod}
+</select>
+
+<!-- 
+조회::확장::단건::지점명으로 지점정보 조회
+입력::지점명, 지점상태코드
+출력::지점정보
+-->
+<select id="selectBrInfByBrNm" parameterType="BrInfVO" resultType="BrInfVO">
+SELECT  A.BR_COD
+      , A.BR_NM
+      , A.BR_STS_COD
+  FROM  BR_INF A
+ WHERE  A.BR_NM = #{br_nm}
+   AND  A.BR_STS_COD = #{br_sts_cod}
+</select>
+
+<!-- 
+조회::확장::다건::연도별 관리점별 거래금액합계 조회::합계금액큰순
+입력::연도
+출력::지점명, 지점코드, 거래합계금액
+-->
+<select id="selectBrTrdSumAmtByYearNBrList" parameterType="int" resultType="SumAmtBrInfVO">
+SELECT  C.BR_NM
+      , C.BR_COD
+      , SUM(A.TRD_AMT - A.FEE) AS SUM_AMT
+  FROM  TRD_BDWN A
+      , ACC_INF B
+      , BR_INF C
+ WHERE  A.TRD_DT LIKE CONCAT(#{year}, '%')
+   AND  A.CNCL_YN = 'N'
+   AND  A.ACC_NO = B.ACC_NO
+   AND  B.MGMT_BR_COD = C.BR_COD
+ GROUP  BY  C.BR_NM
+          , C.BR_COD
+ ORDER  BY  SUM_AMT DESC
+</select>
+
+<!-- 
+조회::확장::단건::지점 거래금액합계 조회 
+입력::지점코드
+출력::지점명, 지점코드, 거래합계금액 
+-->
+<select id="selectBrTrdSumAmt" parameterType="BrInfVO" resultType="SumAmtBrInfVO">
+SELECT  C.BR_NM
+      , C.BR_COD
+      , SUM(A.TRD_AMT - A.FEE) AS SUM_AMT
+  FROM  TRD_BDWN A
+      , ACC_INF B
+      , BR_INF C
+ WHERE  A.CNCL_YN = 'N'
+   AND  A.ACC_NO = B.ACC_NO
+   AND  B.MGMT_BR_COD = C.BR_COD
+   AND  C.BR_COD = #{br_cod}
+</select>
+
+<!-- ==================================================================================================== -->
+<!-- UPDATE                                                                                               -->
+<!-- ==================================================================================================== -->
+
+<!-- 
+갱신::기본::단건::지점정보 
+입력::지점정보
+-->
+<update id="updateBrInf" parameterType="BrInfVO">
+UPDATE  BR_INF A
+   SET  A.BR_NM = #{br_nm}
+      , A.BR_STS_COD = #{br_sts_cod}
+ WHERE  A.BR_COD = #{br_cod}
+</update>
+
+</mapper>
